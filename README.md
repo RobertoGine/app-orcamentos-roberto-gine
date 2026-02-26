@@ -50,12 +50,14 @@ flutter run
 
 ## Estrutura do Projeto
 
+```text
 lib/
-├── screens/
-│ ├── itens_screen.dart
-│ ├── resumo_screen.dart
-├── services/
-│ ├── pdf_service.dart
+ ├── screens/
+ │    ├── itens_screen.dart
+ │    ├── resumo_screen.dart
+ ├── services/
+ │    ├── pdf_service.dart
+```
 
 ---
 
