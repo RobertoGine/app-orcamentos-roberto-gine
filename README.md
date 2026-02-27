@@ -104,6 +104,7 @@ lib/
 ## 👨‍💻 Autor
 
 Roberto Giné
+
 Sistema desenvolvido para gestão profissional de serviços elétricos.
 
 ---
