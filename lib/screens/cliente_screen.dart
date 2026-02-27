@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:orcamento_app/screens/historico_screen.dart';
+
 import 'itens_screen.dart';
 
 class ClienteScreen extends StatefulWidget {
@@ -28,6 +30,20 @@ class _ClienteScreenState extends State<ClienteScreen> {
             const Text(
               "Novo Orçamento",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 12),
+
+            OutlinedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HistoricoScreen(),
+                  ),
+                );
+              },
+              child: const Text("Ver Histórico"),
             ),
 
             const SizedBox(height: 8),

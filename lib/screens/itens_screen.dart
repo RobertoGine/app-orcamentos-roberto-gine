@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:orcamento_app/screens/resumo_screen.dart';
+
+import '../services/database_helper.dart';
 
 class Item {
   TextEditingController descricaoController = TextEditingController();
@@ -9,8 +12,15 @@ class Item {
 
 class ItensScreen extends StatefulWidget {
   final String nomeCliente;
+  final int? orcamentoId;
+  final String? numeroOrcamento;
 
-  const ItensScreen({super.key, required this.nomeCliente});
+  const ItensScreen({
+    super.key,
+    required this.nomeCliente,
+    this.orcamentoId,
+    this.numeroOrcamento,
+  });
 
   @override
   State<ItensScreen> createState() => _ItensScreenState();
@@ -30,7 +40,12 @@ class _ItensScreenState extends State<ItensScreen> {
   @override
   void initState() {
     super.initState();
-    adicionarItem();
+
+    if (widget.orcamentoId != null) {
+      carregarOrcamentoParaEdicao();
+    } else {
+      adicionarItem();
+    }
   }
 
   void adicionarItem() {
@@ -75,6 +90,41 @@ class _ItensScreenState extends State<ItensScreen> {
     setState(() {
       total = totalBruto - valorDesconto;
     });
+  }
+
+  Future<void> carregarOrcamentoParaEdicao() async {
+    final dados = await DatabaseHelper.instance.buscarItensPorOrcamento(
+      widget.orcamentoId!,
+    );
+
+    final orcamento = await DatabaseHelper.instance.buscarOrcamentoPorId(
+      widget.orcamentoId!,
+    );
+
+    kmController.text = orcamento['km'].toString().replaceAll('.', ',');
+
+    custoKmController.text = orcamento['custo_km'].toString().replaceAll(
+      '.',
+      ',',
+    );
+
+    almocoController.text = orcamento['almoco'].toString().replaceAll('.', ',');
+
+    itens.clear(); // importante para evitar duplicar
+
+    for (var itemBanco in dados) {
+      final item = Item();
+      item.descricaoController.text = itemBanco['descricao'];
+      item.valorController.text = itemBanco['valor'].toString().replaceAll(
+        '.',
+        ',',
+      );
+
+      itens.add(item);
+    }
+
+    calcularTotal();
+    setState(() {});
   }
 
   @override
@@ -250,7 +300,15 @@ class _ItensScreenState extends State<ItensScreen> {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0D47A1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 14,
+                  ),
+                ),
+                child: const Text("Finalizar", style: TextStyle(fontSize: 16)),
+                onPressed: () async {
                   double somaItens = 0;
 
                   for (var item in itens) {
@@ -292,21 +350,70 @@ class _ItensScreenState extends State<ItensScreen> {
 
                   double totalFinal = totalBruto - valorDesconto;
 
-                  List<Map<String, String>> listaItens = [];
+                  List<Map<String, dynamic>> listaItens = [];
 
                   for (var item in itens) {
                     listaItens.add({
                       "descricao": item.descricaoController.text,
-                      "valor": item.valorController.text,
+                      "valor":
+                          double.tryParse(
+                            item.valorController.text.replaceAll(",", "."),
+                          ) ??
+                          0,
                     });
+                  }
+
+                  String numeroFinal;
+
+                  if (widget.orcamentoId != null) {
+                    // ✏️ MODO EDIÇÃO
+                    await DatabaseHelper.instance.atualizarOrcamento(
+                      id: widget.orcamentoId!,
+                      total: totalFinal,
+                      desconto: valorDesconto,
+                      km: km,
+                      custoKm: custoKm,
+                      almoco: almoco,
+                      itens: listaItens,
+                    );
+
+                    numeroFinal = widget.numeroOrcamento ?? "ORC-EDIT";
+                  } else {
+                    // 🆕 NOVO ORÇAMENTO
+                    numeroFinal = await DatabaseHelper.instance
+                        .gerarNumeroOrcamento();
+
+                    final data = DateFormat(
+                      'dd/MM/yyyy',
+                    ).format(DateTime.now());
+
+                    await DatabaseHelper.instance.salvarOrcamento(
+                      numero: numeroFinal,
+                      cliente: widget.nomeCliente,
+                      data: data,
+                      total: totalFinal,
+                      desconto: valorDesconto,
+                      itens: listaItens,
+                      km: km,
+                      custoKm: custoKm,
+                      almoco: almoco,
+                    );
                   }
 
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ResumoScreen(
+                        numeroOrcamento: numeroFinal,
                         nomeCliente: widget.nomeCliente,
-                        itens: listaItens,
+                        itens: listaItens
+                            .map(
+                              (e) => {
+                                "descricao": e["descricao"].toString(),
+                                "valor": e["valor"].toString(),
+                              },
+                            )
+                            .toList(),
                         totalItens: somaItens,
                         deslocamento: deslocamento,
                         almoco: almoco,
@@ -316,7 +423,6 @@ class _ItensScreenState extends State<ItensScreen> {
                     ),
                   );
                 },
-                child: const Text("Finalizar"),
               ),
             ],
           ),

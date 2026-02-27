@@ -39,6 +39,9 @@ dependencies:
   share_plus: ^7.2.1
   path_provider: ^2.1.2
   url_launcher: ^6.1.10
+  sqflite: ^2.3.2
+  path: ^1.9.0
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

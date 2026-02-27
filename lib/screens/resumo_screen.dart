@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/pdf_service.dart';
 
 class ResumoScreen extends StatefulWidget {
+  final String numeroOrcamento;
   final String nomeCliente;
   final List<Map<String, String>> itens;
 
@@ -14,6 +15,7 @@ class ResumoScreen extends StatefulWidget {
 
   const ResumoScreen({
     super.key,
+    required this.numeroOrcamento,
     required this.nomeCliente,
     required this.itens,
     required this.totalItens,
@@ -41,6 +43,15 @@ class _ResumoScreenState extends State<ResumoScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
+              "Orçamento: ${widget.numeroOrcamento}",
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0D47A1),
+              ),
+            ),
+
+            Text(
               "Cliente: ${widget.nomeCliente}",
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
@@ -58,7 +69,7 @@ class _ResumoScreenState extends State<ResumoScreen> {
                   return ListTile(
                     title: Text(widget.itens[index]["descricao"] ?? ""),
                     trailing: Text(
-                      "R\$ ${widget.itens[index]["valor"] ?? "0"}",
+                      "R\$ ${double.parse(widget.itens[index]["valor"] ?? "0").toStringAsFixed(2).replaceAll('.', ',')}",
                     ),
                   );
                 },
@@ -182,6 +193,7 @@ class _ResumoScreenState extends State<ResumoScreen> {
                       });
 
                       await PdfService.gerarECompartilharPdf(
+                        numeroOrcamento: widget.numeroOrcamento,
                         nomeCliente: widget.nomeCliente,
                         itens: widget.itens,
                         totalItens: widget.totalItens,

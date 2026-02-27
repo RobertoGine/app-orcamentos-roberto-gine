@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
@@ -12,6 +13,7 @@ String formatarMoeda(double valor) {
 
 class PdfService {
   static Future<void> gerarECompartilharPdf({
+    required String numeroOrcamento,
     required String nomeCliente,
     required List<Map<String, String>> itens,
     required double totalItens,
@@ -34,8 +36,9 @@ class PdfService {
     final pinguimImage = pw.MemoryImage(pinguimBytes);
 
     final agora = DateTime.now();
-    final numeroOrcamento =
-        "${agora.year}${agora.month}${agora.day}${agora.hour}${agora.minute}";
+
+    //final numeroOrcamento =
+    //"${agora.year}${agora.month}${agora.day}${agora.hour}${agora.minute}";
 
     pdf.addPage(
       pw.Page(
