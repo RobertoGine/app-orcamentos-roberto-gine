@@ -165,13 +165,52 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-    CREATE TABLE itens (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      orcamento_id INTEGER NOT NULL,
-      descricao TEXT NOT NULL,
-      valor REAL NOT NULL,
-      FOREIGN KEY (orcamento_id) REFERENCES orcamentos (id)
-    )
-  ''');
+      CREATE TABLE itens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        orcamento_id INTEGER NOT NULL,
+        descricao TEXT NOT NULL,
+        valor REAL NOT NULL,
+        FOREIGN KEY (orcamento_id) REFERENCES orcamentos (id)
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE configuracoes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome_empresa TEXT,
+        telefone TEXT,
+        email TEXT,
+        logo_path TEXT
+      )
+    ''');
+  }
+
+  Future<void> salvarConfiguracoes({
+    required String nomeEmpresa,
+    required String telefone,
+    required String email,
+    required String? logoPath,
+  }) async {
+    final db = await instance.database;
+
+    await db.delete('configuracoes'); // mantém só 1 registro
+
+    await db.insert('configuracoes', {
+      'nome_empresa': nomeEmpresa,
+      'telefone': telefone,
+      'email': email,
+      'logo_path': logoPath,
+    });
+  }
+
+  Future<Map<String, dynamic>?> buscarConfiguracoes() async {
+    final db = await instance.database;
+
+    final result = await db.query('configuracoes');
+
+    if (result.isNotEmpty) {
+      return result.first;
+    }
+    return null;
   }
 }

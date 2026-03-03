@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:orcamento_app/screens/historico_screen.dart';
 
+import 'configuracoes_screen.dart';
 import 'itens_screen.dart';
 
 class ClienteScreen extends StatefulWidget {
@@ -17,21 +18,26 @@ class _ClienteScreenState extends State<ClienteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Cliente"),
-        backgroundColor: Colors.blue[900],
+        title: const Text("EletricOrçamentos Pro"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ConfiguracoesScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20),
-
-            const Text(
-              "Novo Orçamento",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-
             const SizedBox(height: 12),
 
             OutlinedButton(
@@ -44,6 +50,13 @@ class _ClienteScreenState extends State<ClienteScreen> {
                 );
               },
               child: const Text("Ver Histórico"),
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              "Novo Orçamento",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 8),

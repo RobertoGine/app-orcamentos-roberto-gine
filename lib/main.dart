@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'screens/cliente_screen.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
+import 'screens/splash_screen.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('pt_BR', null);
   runApp(const OrcamentoApp());
 }
 
@@ -30,7 +34,7 @@ class OrcamentoApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const ClienteScreen(),
+      home: const SplashScreen(),
     );
   }
 }

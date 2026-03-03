@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:orcamento_app/screens/resumo_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/database_helper.dart';
+
+String formatarMoedaBR(double valor) {
+  final formatador = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$ ');
+  return formatador.format(valor);
+}
 
 class Item {
   TextEditingController descricaoController = TextEditingController();
@@ -33,19 +39,30 @@ class _ItensScreenState extends State<ItensScreen> {
   bool mostrarDesconto = false;
 
   final kmController = TextEditingController();
-  final custoKmController = TextEditingController(text: "1.20");
+  final custoKmController = TextEditingController();
   final almocoController = TextEditingController();
   final descontoController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    adicionarItem();
+    carregarTaxaPadrao();
 
     if (widget.orcamentoId != null) {
       carregarOrcamentoParaEdicao();
     } else {
       adicionarItem();
     }
+  }
+
+  Future<void> carregarTaxaPadrao() async {
+    final prefs = await SharedPreferences.getInstance();
+    final taxa = prefs.getString('taxaKm') ?? '1.20';
+
+    setState(() {
+      custoKmController.text = taxa;
+    });
   }
 
   void adicionarItem() {
@@ -154,7 +171,7 @@ class _ItensScreenState extends State<ItensScreen> {
                         TextField(
                           controller: itens[index].descricaoController,
                           decoration: const InputDecoration(
-                            labelText: "Descrição do Item",
+                            labelText: "Descrição do Serviço", // Item
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -224,7 +241,9 @@ class _ItensScreenState extends State<ItensScreen> {
                 decimal: true,
               ),
               onChanged: (_) => calcularTotal(),
-              decoration: const InputDecoration(labelText: "Alimentação"),
+              decoration: const InputDecoration(
+                labelText: "Despesas Adicionais",
+              ), //Alimentaçao
             ),
 
             const SizedBox(height: 15),
@@ -291,7 +310,7 @@ class _ItensScreenState extends State<ItensScreen> {
             children: [
               Expanded(
                 child: Text(
-                  "R\$ ${total.toStringAsFixed(2).replaceAll('.', ',')}",
+                  formatarMoedaBR(total),
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -301,13 +320,24 @@ class _ItensScreenState extends State<ItensScreen> {
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0D47A1),
+                  backgroundColor: const Color.fromARGB(
+                    255,
+                    7,
+                    93,
+                    223,
+                  ), // azul
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
                     vertical: 14,
                   ),
                 ),
-                child: const Text("Finalizar", style: TextStyle(fontSize: 16)),
+                child: const Text(
+                  "Finalizar",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Color.fromARGB(255, 244, 246, 244),
+                  ),
+                ),
                 onPressed: () async {
                   double somaItens = 0;
 

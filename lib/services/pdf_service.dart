@@ -1,14 +1,34 @@
 import 'dart:io';
 
-import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:orcamento_app/utils/formatters.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+String formatarMoedaBR(double valor) {
+  final formatador = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+  return formatador.format(valor);
+}
 
 String formatarMoeda(double valor) {
   return "R\$ ${valor.toStringAsFixed(2).replaceAll('.', ',')}";
+}
+
+String formatarTelefoneBR(String telefone) {
+  if (telefone.length == 11) {
+    return "(${telefone.substring(0, 2)}) "
+        "${telefone.substring(2, 7)}-"
+        "${telefone.substring(7)}";
+  } else if (telefone.length == 10) {
+    return "(${telefone.substring(0, 2)}) "
+        "${telefone.substring(2, 6)}-"
+        "${telefone.substring(6)}";
+  }
+  return telefone;
 }
 
 class PdfService {
@@ -21,24 +41,57 @@ class PdfService {
     required double almoco,
     required double desconto,
     required double totalGeral,
+    String? caminhoLogo,
   }) async {
     final pdf = pw.Document();
 
-    final logoBytes = (await rootBundle.load(
-      'assets/images/logo.png',
-    )).buffer.asUint8List();
+    //final logoAppBytes = (await rootBundle.load(
+    //  'assets/logo_app.png',
+    //)).buffer.asUint8List();
 
-    final pinguimBytes = (await rootBundle.load(
-      'assets/images/pinguim.png',
-    )).buffer.asUint8List();
+    //final logoAppImage = pw.MemoryImage(logoAppBytes);
 
-    final logoImage = pw.MemoryImage(logoBytes);
-    final pinguimImage = pw.MemoryImage(pinguimBytes);
+    //final logoBytes = (await rootBundle.load(
+    //  'assets/images/logo.png',
+    //)).buffer.asUint8List();
+
+    //final pinguimBytes = (await rootBundle.load(
+    // 'assets/images/pinguim.png',
+    //)).buffer.asUint8List();
+
+    final prefs = await SharedPreferences.getInstance();
+
+    //String nomeEmpresa = prefs.getString('nomeEmpresa') ?? '';
+    //String telefoneEmpresa = prefs.getString('telefone') ?? '';
+    //String emailEmpresa = prefs.getString('emailEmpresa') ?? '';
+    String? logoPath = prefs.getString('logoPath');
+
+    final nomeEmpresa = prefs.getString('nomeEmpresa') ?? 'Sua Empresa';
+    final telefoneEmpresa = prefs.getString('telefone') ?? '';
+
+    final emailEmpresa = prefs.getString('emailEmpresa') ?? '';
+
+    //final logoImage = pw.MemoryImage(logoBytes);
+    //final pinguimImage = pw.MemoryImage(pinguimBytes);
 
     final agora = DateTime.now();
 
+    pw.MemoryImage? logoImage;
+
+    if (logoPath != null && logoPath.isNotEmpty) {
+      final logoBytes = await File(logoPath).readAsBytes();
+      logoImage = pw.MemoryImage(logoBytes);
+    }
+
     //final numeroOrcamento =
     //"${agora.year}${agora.month}${agora.day}${agora.hour}${agora.minute}";
+
+    pw.MemoryImage? logoWatermark;
+
+    if (logoPath != null && logoPath.isNotEmpty) {
+      final logoBytes = await File(logoPath).readAsBytes();
+      logoWatermark = pw.MemoryImage(logoBytes);
+    }
 
     pdf.addPage(
       pw.Page(
@@ -47,20 +100,52 @@ class PdfService {
           return pw.Stack(
             children: [
               // Marca d'água
-              pw.Positioned.fill(
-                child: pw.Opacity(
-                  opacity: 0.08,
-                  child: pw.Center(child: pw.Image(pinguimImage, width: 400)),
+              if (logoWatermark != null)
+                pw.Positioned.fill(
+                  child: pw.Center(
+                    child: pw.Opacity(
+                      opacity: 0.04,
+                      child: pw.Container(
+                        width: 260,
+                        height: 280,
+                        child: pw.FittedBox(
+                          fit: pw.BoxFit.contain,
+                          child: pw.Image(logoWatermark),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
 
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   // Logo central
-                  pw.Center(child: pw.Image(logoImage, width: 180)),
+                  pw.Center(
+                    child: pw.Column(
+                      children: [
+                        if (logoImage != null)
+                          pw.Container(
+                            alignment: pw.Alignment.center,
+                            child: pw.Image(
+                              logoImage,
+                              height: 100,
+                              width: 80,
+                              fit: pw.BoxFit.contain,
+                            ),
+                          ),
+                        pw.SizedBox(height: 10),
+                        pw.Text(nomeEmpresa, style: pw.TextStyle(fontSize: 16)),
+                        if (telefoneEmpresa.isNotEmpty)
+                          pw.Text(
+                            formatarTelefoneBR(telefoneEmpresa),
+                            style: pw.TextStyle(fontSize: 14),
+                          ),
+                      ],
+                    ),
+                  ),
 
-                  pw.SizedBox(height: 20),
+                  pw.SizedBox(height: 10),
 
                   pw.Text(
                     "ORÇAMENTO Nº $numeroOrcamento",
@@ -97,7 +182,7 @@ class PdfService {
                       children: [
                         pw.Expanded(child: pw.Text(item["descricao"] ?? "")),
                         pw.Text(
-                          formatarMoeda(
+                          formatarMoedaBR(
                             double.tryParse(
                                   (item["valor"] ?? "0").replaceAll(",", "."),
                                 ) ??
@@ -118,7 +203,7 @@ class PdfService {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text("Mão de obra:"),
-                      pw.Text(formatarMoeda(totalItens)),
+                      pw.Text(formatarMoedaBR(totalItens)),
                     ],
                   ),
 
@@ -126,7 +211,7 @@ class PdfService {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text("Deslocamento:"),
-                      pw.Text(formatarMoeda(deslocamento)),
+                      pw.Text(formatarMoedaBR(deslocamento)),
                     ],
                   ),
 
@@ -134,7 +219,7 @@ class PdfService {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text("Alimentação:"),
-                      pw.Text(formatarMoeda(almoco)),
+                      pw.Text(formatarMoedaBR(almoco)),
                     ],
                   ),
 
@@ -144,7 +229,7 @@ class PdfService {
                       children: [
                         pw.Text("Desconto:"),
                         pw.Text(
-                          formatarMoeda(desconto),
+                          formatarMoedaBR(desconto),
                           style: pw.TextStyle(color: PdfColors.red),
                         ),
                       ],
@@ -177,7 +262,7 @@ class PdfService {
                           ),
                         ),
                         pw.Text(
-                          formatarMoeda(totalGeral),
+                          formatarMoedaBR(totalGeral),
                           style: pw.TextStyle(
                             fontSize: 24,
                             fontWeight: pw.FontWeight.bold,
@@ -189,8 +274,34 @@ class PdfService {
                   ),
 
                   pw.SizedBox(height: 30),
+                  pw.Divider(),
+                  pw.SizedBox(height: 10),
 
-                  pw.Text("Contato: (11) 98596-2681 | robertogine@hotmail.com"),
+                  pw.Center(
+                    child: pw.Column(
+                      children: [
+                        pw.Text(
+                          "Contato",
+                          style: pw.TextStyle(
+                            fontSize: 11,
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
+                        if (telefoneEmpresa.isNotEmpty)
+                          pw.Text(
+                            Formatters.telefoneBR(telefoneEmpresa),
+                            style: pw.TextStyle(fontSize: 10),
+                            textAlign: pw.TextAlign.center,
+                          ),
+                        if (emailEmpresa.isNotEmpty)
+                          pw.Text(
+                            emailEmpresa,
+                            style: pw.TextStyle(fontSize: 10),
+                            textAlign: pw.TextAlign.center,
+                          ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -212,7 +323,7 @@ class PdfService {
 
     Segue seu orçamento digital referente ao serviço solicitado.
 
-    Valor total: ${formatarMoeda(totalGeral)}
+    Valor total: ${formatarMoedaBR(totalGeral)}
 
     Qualquer dúvida fico à disposição.
 

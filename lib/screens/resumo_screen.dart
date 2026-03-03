@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../services/pdf_service.dart';
+
+String formatarMoedaBR(double valor) {
+  final formatador = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$ ');
+  return formatador.format(valor);
+}
+
+//String formatarMoedaBR(double valor) {
+//final formatador = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$ ');
+// return formatador.format(valor);
+//}
 
 class ResumoScreen extends StatefulWidget {
   final String numeroOrcamento;
@@ -69,7 +80,9 @@ class _ResumoScreenState extends State<ResumoScreen> {
                   return ListTile(
                     title: Text(widget.itens[index]["descricao"] ?? ""),
                     trailing: Text(
-                      "R\$ ${double.parse(widget.itens[index]["valor"] ?? "0").toStringAsFixed(2).replaceAll('.', ',')}",
+                      formatarMoedaBR(
+                        double.parse(widget.itens[index]["valor"] ?? "0.0"),
+                      ),
                     ),
                   );
                 },
@@ -84,7 +97,7 @@ class _ResumoScreenState extends State<ResumoScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text("Itens:"),
-                Text("R\$ ${widget.totalItens.toStringAsFixed(2)}"),
+                Text(formatarMoedaBR(widget.totalItens)),
               ],
             ),
 
@@ -94,7 +107,7 @@ class _ResumoScreenState extends State<ResumoScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text("Deslocamento:"),
-                Text("R\$ ${widget.deslocamento.toStringAsFixed(2)}"),
+                Text(formatarMoedaBR(widget.deslocamento)),
               ],
             ),
 
@@ -103,8 +116,8 @@ class _ResumoScreenState extends State<ResumoScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Alimentação:"),
-                Text("R\$ ${widget.almoco.toStringAsFixed(2)}"),
+                const Text("Despesas Adicionais:"), //Alimentação
+                Text(formatarMoedaBR(widget.almoco)),
               ],
             ),
 
@@ -115,7 +128,7 @@ class _ResumoScreenState extends State<ResumoScreen> {
                 children: [
                   const Text("Desconto:"),
                   Text(
-                    "- R\$ ${widget.desconto.toStringAsFixed(2)}",
+                    formatarMoedaBR(widget.desconto),
                     style: const TextStyle(color: Colors.red),
                   ),
                 ],
@@ -134,7 +147,7 @@ class _ResumoScreenState extends State<ResumoScreen> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  "R\$ ${widget.totalGeral.toStringAsFixed(2)}",
+                  formatarMoedaBR(widget.totalGeral),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -168,18 +181,22 @@ class _ResumoScreenState extends State<ResumoScreen> {
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
+                        color: Color.fromARGB(255, 2, 177, 2),
+                        strokeWidth: 5,
                       ),
                     )
                   : const Icon(Icons.picture_as_pdf),
 
               label: Text(
                 carregando ? "Gerando PDF..." : "Gerar e Enviar Orçamento",
+                style: const TextStyle(
+                  color: Color.fromARGB(255, 244, 246, 244),
+                  fontSize: 15,
+                ),
               ),
 
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0D47A1),
+                backgroundColor: const Color.fromARGB(255, 3, 66, 202),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
