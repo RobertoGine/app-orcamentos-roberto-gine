@@ -38,78 +38,107 @@ class _HistoricoScreenState extends State<HistoricoScreen> {
               itemBuilder: (context, index) {
                 final item = orcamentos[index];
 
-                return ListTile(
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Cliente: ${item['cliente']}"),
-                      Text(
-                        "Total: R\$ ${item['total'].toStringAsFixed(2).replaceAll('.', ',')}",
-                      ),
-                      if (item['desconto'] > 0)
+                return Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(12),
+                    title: Text(
+                      "${item['numero']} - ${item['cliente']}",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 6),
+
                         Text(
-                          "Desconto: R\$ ${item['desconto'].toStringAsFixed(2).replaceAll('.', ',')}",
-                          style: const TextStyle(color: Colors.red),
+                          "Total: R\$ ${item['total'].toStringAsFixed(2).replaceAll('.', ',')}",
                         ),
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "R\$ ${item['total'].toStringAsFixed(2).replaceAll('.', ',')}",
-                      ),
-                      const SizedBox(width: 10),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () async {
-                          final confirmar = await showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text("Excluir Orçamento"),
-                              content: const Text(
-                                "Tem certeza que deseja excluir este orçamento?",
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, false),
-                                  child: const Text("Cancelar"),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text(
-                                    "Excluir",
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                              ],
+
+                        if (item['desconto'] > 0)
+                          Text(
+                            "Desconto: R\$ ${item['desconto'].toStringAsFixed(2).replaceAll('.', ',')}",
+                            style: const TextStyle(color: Colors.red),
+                          ),
+
+                        const SizedBox(height: 6),
+
+                        // 🔵 STATUS BADGE
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: item['status'] == 'FECHADO'
+                                ? Colors.green.withOpacity(0.15)
+                                : Colors.orange.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            item['status'],
+                            style: TextStyle(
+                              color: item['status'] == 'FECHADO'
+                                  ? Colors.green
+                                  : Colors.orange,
+                              fontWeight: FontWeight.bold,
                             ),
-                          );
-
-                          if (confirmar == true) {
-                            await DatabaseHelper.instance.excluirOrcamento(
-                              item['id'],
-                            );
-
-                            await carregarOrcamentos();
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ItensScreen(
-                          nomeCliente: item['cliente'],
-                          orcamentoId: item['id'],
-                          numeroOrcamento: item['numero'],
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      ],
+                    ),
+
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () async {
+                        final confirmar = await showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text("Excluir Orçamento"),
+                            content: const Text(
+                              "Tem certeza que deseja excluir este orçamento?",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text("Cancelar"),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text(
+                                  "Excluir",
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirmar == true) {
+                          await DatabaseHelper.instance.excluirOrcamento(
+                            item['id'],
+                          );
+                          await carregarOrcamentos();
+                        }
+                      },
+                    ),
+
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ItensScreen(
+                            nomeCliente: item['cliente'],
+                            orcamentoId: item['id'],
+                            numeroOrcamento: item['numero'],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orcamento_app/screens/dashboard_screen.dart';
 import 'package:orcamento_app/screens/historico_screen.dart';
 
 import 'configuracoes_screen.dart';
@@ -21,7 +22,20 @@ class _ClienteScreenState extends State<ClienteScreen> {
         title: const Text("EletricOrçamentos Pro"),
         actions: [
           IconButton(
+            icon: const Icon(Icons.dashboard),
+            tooltip: "Dashboard",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DashboardScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
+            tooltip: "Configurações",
             onPressed: () {
               Navigator.push(
                 context,

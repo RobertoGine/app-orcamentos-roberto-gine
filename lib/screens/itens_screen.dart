@@ -46,7 +46,7 @@ class _ItensScreenState extends State<ItensScreen> {
   @override
   void initState() {
     super.initState();
-    adicionarItem();
+
     carregarTaxaPadrao();
 
     if (widget.orcamentoId != null) {
@@ -405,6 +405,7 @@ class _ItensScreenState extends State<ItensScreen> {
                       custoKm: custoKm,
                       almoco: almoco,
                       itens: listaItens,
+                      status: "PENDENTE",
                     );
 
                     numeroFinal = widget.numeroOrcamento ?? "ORC-EDIT";
@@ -427,6 +428,7 @@ class _ItensScreenState extends State<ItensScreen> {
                       km: km,
                       custoKm: custoKm,
                       almoco: almoco,
+                      status: "PENDENTE",
                     );
                   }
 
