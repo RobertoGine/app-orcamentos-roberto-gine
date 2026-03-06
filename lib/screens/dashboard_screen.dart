@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orcamento_app/widgets/grafico_financeiro.dart';
 
 import '../services/database_helper.dart';
 
@@ -68,26 +69,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(title: const Text("Dashboard Financeiro")),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            _card("Faturamento do Mês", "R\$ ${formatar(faturamento)}"),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _card("Faturamento do Mês", "R\$ ${formatar(faturamento)}"),
 
-            const SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-            _card("Orçamentos Emitidos", totalOrcamentos.toString()),
+              _card("Orçamentos Emitidos", totalOrcamentos.toString()),
 
-            const SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-            _card("Orçamentos Fechados", orcamentosFechados.toString()),
+              _card("Orçamentos Fechados", orcamentosFechados.toString()),
 
-            const SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-            _card("Orçamentos Pendentes", orcamentosPendentes.toString()),
+              _card("Orçamentos Pendentes", orcamentosPendentes.toString()),
 
-            const SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-            _card("Descontos Concedidos", "R\$ ${formatar(descontos)}"),
-          ],
+              _card("Descontos Concedidos", "R\$ ${formatar(descontos)}"),
+
+              const SizedBox(height: 25),
+
+              GraficoFinanceiro(faturamento: faturamento, descontos: descontos),
+            ],
+          ),
         ),
       ),
     );

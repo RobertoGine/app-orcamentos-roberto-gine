@@ -273,4 +273,18 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   }
+
+  Future<List<double>> faturamentoMensal() async {
+    final db = await database;
+
+    final result = await db.rawQuery('''
+  SELECT strftime('%m', data) as mes, SUM(valor) as total
+  FROM orcamentos
+  WHERE status = 'fechado'
+  GROUP BY mes
+  ORDER BY mes
+  ''');
+
+    return result.map((e) => (e['total'] as num).toDouble()).toList();
+  }
 }

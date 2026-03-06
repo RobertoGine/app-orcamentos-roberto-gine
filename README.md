@@ -4,7 +4,7 @@ Aplicativo desenvolvido em **Flutter** para geração e gestão de **orçamentos
 
 O sistema permite criar, editar e gerenciar orçamentos completos, calcular deslocamento, aplicar descontos e gerar **PDF profissional personalizado para envio ao cliente**.
 
-O aplicativo também possui **histórico avançado com filtros, busca, controle de status e dashboard financeiro mensal**.
+O aplicativo também possui **histórico avançado com filtros, busca, controle de status, dashboard financeiro e visualização gráfica do faturamento**.
 
 ---
 
@@ -101,9 +101,9 @@ Os **itens ficam vinculados ao orçamento**.
 
 ---
 
-## 🔹 Dashboard Financeiro
+# 📊 Dashboard Financeiro
 
-Tela de controle financeiro mensal com:
+Tela de controle financeiro mensal com indicadores de desempenho:
 
 * ✅ Faturamento do mês
 * ✅ Total de orçamentos emitidos
@@ -111,11 +111,30 @@ Tela de controle financeiro mensal com:
 * ✅ Orçamentos pendentes
 * ✅ Descontos concedidos
 
-O faturamento considera **apenas orçamentos fechados**.
+O faturamento considera **apenas orçamentos com status FECHADO**.
 
 ---
 
-## 🔹 Geração de PDF Profissional
+# 📈 Gráfico Financeiro
+
+O dashboard também apresenta **visualização gráfica dos dados financeiros**.
+
+O gráfico permite acompanhar rapidamente:
+
+* Faturamento do mês
+* Total de descontos concedidos
+
+A visualização foi implementada utilizando:
+
+```
+fl_chart
+```
+
+Essa funcionalidade melhora a **análise de desempenho comercial diretamente no aplicativo**.
+
+---
+
+# 🔹 Geração de PDF Profissional
 
 O aplicativo gera **PDF profissional para envio ao cliente**:
 
@@ -135,10 +154,12 @@ O aplicativo gera **PDF profissional para envio ao cliente**:
 * Dart
 * SQLite (`sqflite`)
 * `pdf`
+* `printing`
 * `share_plus`
 * `path_provider`
 * `url_launcher`
 * `intl`
+* `fl_chart`
 
 ---
 
@@ -146,25 +167,25 @@ O aplicativo gera **PDF profissional para envio ao cliente**:
 
 ### 1️⃣ Clonar o repositório
 
-```bash
+```
 git clone https://github.com/RobertoGine/app-orcamentos-roberto-gine.git
 ```
 
 ### 2️⃣ Acessar a pasta
 
-```bash
+```
 cd app-orcamentos-roberto-gine
 ```
 
 ### 3️⃣ Instalar dependências
 
-```bash
+```
 flutter pub get
 ```
 
 ### 4️⃣ Executar o projeto
 
-```bash
+```
 flutter run
 ```
 
@@ -172,18 +193,29 @@ flutter run
 
 # 📂 Estrutura do Projeto
 
-```text
+```
 lib/
+ ├── models/
+ │    └── orcamento_model.dart
+ │
  ├── screens/
  │    ├── cliente_screen.dart
  │    ├── itens_screen.dart
  │    ├── resumo_screen.dart
  │    ├── historico_screen.dart
  │    ├── dashboard_screen.dart
+ │    ├── configuracoes_screen.dart
+ │    └── splash_screen.dart
+ │
+ ├── widgets/
+ │    └── grafico_financeiro.dart
  │
  ├── services/
  │    ├── pdf_service.dart
- │    ├── database_helper.dart
+ │    └── database_helper.dart
+ │
+ └── utils/
+      └── formatters.dart
 ```
 
 ---
@@ -192,10 +224,11 @@ lib/
 
 Planejamento de evolução do sistema:
 
-* [ ] Gráfico de faturamento mensal
+* [ ] Gráfico de faturamento **por mês**
 * [ ] Filtro por período (mês / ano)
 * [ ] Backup do banco de dados
 * [ ] Exportação de relatórios
+* [ ] Cadastro de clientes
 * [ ] Sistema multiempresa
 * [ ] Publicação na Play Store
 
