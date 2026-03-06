@@ -12,7 +12,10 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   double faturamento = 0;
   double descontos = 0;
+
   int totalOrcamentos = 0;
+  int orcamentosFechados = 0;
+  int orcamentosPendentes = 0;
 
   @override
   void initState() {
@@ -31,15 +34,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
     double total = 0;
     double totalDescontos = 0;
 
+    int fechados = 0;
+    int pendentes = 0;
+
     for (var item in dados) {
-      total += item['total'];
+      if (item['status'] == 'FECHADO') {
+        total += item['total'];
+        fechados++;
+      } else {
+        pendentes++;
+      }
+
       totalDescontos += item['desconto'];
     }
 
     setState(() {
       faturamento = total;
       descontos = totalDescontos;
+
       totalOrcamentos = dados.length;
+      orcamentosFechados = fechados;
+      orcamentosPendentes = pendentes;
     });
   }
 
@@ -56,9 +71,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           children: [
             _card("Faturamento do Mês", "R\$ ${formatar(faturamento)}"),
+
             const SizedBox(height: 15),
+
             _card("Orçamentos Emitidos", totalOrcamentos.toString()),
+
             const SizedBox(height: 15),
+
+            _card("Orçamentos Fechados", orcamentosFechados.toString()),
+
+            const SizedBox(height: 15),
+
+            _card("Orçamentos Pendentes", orcamentosPendentes.toString()),
+
+            const SizedBox(height: 15),
+
             _card("Descontos Concedidos", "R\$ ${formatar(descontos)}"),
           ],
         ),

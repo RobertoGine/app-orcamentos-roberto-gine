@@ -251,4 +251,26 @@ class DatabaseHelper {
       [mes.toString().padLeft(2, '0'), ano.toString()],
     );
   }
+
+  Future<void> marcarComoFechado(int id) async {
+    final db = await instance.database;
+
+    await db.update(
+      'orcamentos',
+      {'status': 'FECHADO'},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> atualizarStatus(int id, String status) async {
+    final db = await instance.database;
+
+    await db.update(
+      'orcamentos',
+      {'status': status},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
 }
