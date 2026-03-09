@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:orcamento_app/screens/lista_material_screen.dart';
 import 'package:orcamento_app/screens/resumo_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -121,9 +122,9 @@ class _ItensScreenState extends State<ItensScreen> {
     kmController.text = orcamento['km'].toString().replaceAll('.', ',');
 
     custoKmController.text = orcamento['custo_km'].toString().replaceAll(
-      '.',
-      ',',
-    );
+          '.',
+          ',',
+        );
 
     almocoController.text = orcamento['almoco'].toString().replaceAll('.', ',');
 
@@ -133,9 +134,9 @@ class _ItensScreenState extends State<ItensScreen> {
       final item = Item();
       item.descricaoController.text = itemBanco['descricao'];
       item.valorController.text = itemBanco['valor'].toString().replaceAll(
-        '.',
-        ',',
-      );
+            '.',
+            ',',
+          );
 
       itens.add(item);
     }
@@ -294,7 +295,7 @@ class _ItensScreenState extends State<ItensScreen> {
 
       // 👇 BARRA FIXA PROFISSIONAL
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -308,153 +309,173 @@ class _ItensScreenState extends State<ItensScreen> {
         child: SafeArea(
           child: Row(
             children: [
+              /// TOTAL
               Expanded(
-                child: Text(
-                  formatarMoedaBR(total),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF0D47A1),
+                flex: 3,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    formatarMoedaBR(total),
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0D47A1),
+                    ),
                   ),
                 ),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(
-                    255,
-                    7,
-                    93,
-                    223,
-                  ), // azul
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 14,
+
+              const SizedBox(width: 10),
+
+              /// BOTÃO LISTA
+              Expanded(
+                flex: 3,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.build),
+                  label: const Text("Lista"),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ListaMaterialScreen(
+                          cliente: widget.nomeCliente,
+                          numeroOrcamento: widget.numeroOrcamento,
+                        ),
+                      ),
+                    );
+                  },
                 ),
-                child: const Text(
-                  "Finalizar",
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Color.fromARGB(255, 244, 246, 244),
+              ),
+
+              const SizedBox(width: 10),
+
+              /// BOTÃO FINALIZAR
+              Expanded(
+                flex: 3,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF075DDF),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                ),
-                onPressed: () async {
-                  double somaItens = 0;
+                  child: const Text(
+                    "Finalizar",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                  onPressed: () async {
+                    double somaItens = 0;
 
-                  for (var item in itens) {
-                    double valor =
-                        double.tryParse(
-                          item.valorController.text.replaceAll(",", "."),
-                        ) ??
-                        0;
-                    somaItens += valor;
-                  }
-
-                  double km =
-                      double.tryParse(kmController.text.replaceAll(",", ".")) ??
-                      0;
-
-                  double custoKm =
-                      double.tryParse(
-                        custoKmController.text.replaceAll(",", "."),
-                      ) ??
-                      0;
-
-                  double almoco =
-                      double.tryParse(
-                        almocoController.text.replaceAll(",", "."),
-                      ) ??
-                      0;
-
-                  double deslocamento = km * custoKm;
-
-                  double totalBruto = somaItens + deslocamento + almoco;
-
-                  double descontoPercent =
-                      double.tryParse(
-                        descontoController.text.replaceAll(",", "."),
-                      ) ??
-                      0;
-
-                  double valorDesconto = totalBruto * (descontoPercent / 100);
-
-                  double totalFinal = totalBruto - valorDesconto;
-
-                  List<Map<String, dynamic>> listaItens = [];
-
-                  for (var item in itens) {
-                    listaItens.add({
-                      "descricao": item.descricaoController.text,
-                      "valor":
-                          double.tryParse(
+                    for (var item in itens) {
+                      double valor = double.tryParse(
                             item.valorController.text.replaceAll(",", "."),
                           ) ??
-                          0,
-                    });
-                  }
+                          0;
+                      somaItens += valor;
+                    }
 
-                  String numeroFinal;
+                    double km = double.tryParse(
+                            kmController.text.replaceAll(",", ".")) ??
+                        0;
 
-                  if (widget.orcamentoId != null) {
-                    // ✏️ MODO EDIÇÃO
-                    await DatabaseHelper.instance.atualizarOrcamento(
-                      id: widget.orcamentoId!,
-                      total: totalFinal,
-                      desconto: valorDesconto,
-                      km: km,
-                      custoKm: custoKm,
-                      almoco: almoco,
-                      itens: listaItens,
-                      status: "PENDENTE",
-                    );
+                    double custoKm = double.tryParse(
+                            custoKmController.text.replaceAll(",", ".")) ??
+                        0;
 
-                    numeroFinal = widget.numeroOrcamento ?? "ORC-EDIT";
-                  } else {
-                    // 🆕 NOVO ORÇAMENTO
-                    numeroFinal = await DatabaseHelper.instance
-                        .gerarNumeroOrcamento();
+                    double almoco = double.tryParse(
+                            almocoController.text.replaceAll(",", ".")) ??
+                        0;
 
-                    final data = DateFormat(
-                      'dd/MM/yyyy',
-                    ).format(DateTime.now());
+                    double deslocamento = km * custoKm;
 
-                    await DatabaseHelper.instance.salvarOrcamento(
-                      numero: numeroFinal,
-                      cliente: widget.nomeCliente,
-                      data: data,
-                      total: totalFinal,
-                      desconto: valorDesconto,
-                      itens: listaItens,
-                      km: km,
-                      custoKm: custoKm,
-                      almoco: almoco,
-                      status: "PENDENTE",
-                    );
-                  }
+                    double totalBruto = somaItens + deslocamento + almoco;
 
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ResumoScreen(
-                        numeroOrcamento: numeroFinal,
-                        nomeCliente: widget.nomeCliente,
-                        itens: listaItens
-                            .map(
-                              (e) => {
-                                "descricao": e["descricao"].toString(),
-                                "valor": e["valor"].toString(),
-                              },
-                            )
-                            .toList(),
-                        totalItens: somaItens,
-                        deslocamento: deslocamento,
-                        almoco: almoco,
+                    double descontoPercent = double.tryParse(
+                          descontoController.text.replaceAll(",", "."),
+                        ) ??
+                        0;
+
+                    double valorDesconto = totalBruto * (descontoPercent / 100);
+
+                    double totalFinal = totalBruto - valorDesconto;
+
+                    List<Map<String, dynamic>> listaItens = [];
+
+                    for (var item in itens) {
+                      listaItens.add({
+                        "descricao": item.descricaoController.text,
+                        "valor": double.tryParse(
+                              item.valorController.text.replaceAll(",", "."),
+                            ) ??
+                            0,
+                      });
+                    }
+
+                    String numeroFinal;
+
+                    if (widget.orcamentoId != null) {
+                      await DatabaseHelper.instance.atualizarOrcamento(
+                        id: widget.orcamentoId!,
+                        total: totalFinal,
                         desconto: valorDesconto,
-                        totalGeral: totalFinal,
+                        km: km,
+                        custoKm: custoKm,
+                        almoco: almoco,
+                        itens: listaItens,
+                        status: "PENDENTE",
+                      );
+
+                      numeroFinal = widget.numeroOrcamento ?? "ORC-EDIT";
+                    } else {
+                      numeroFinal =
+                          await DatabaseHelper.instance.gerarNumeroOrcamento();
+
+                      final data =
+                          DateFormat('dd/MM/yyyy').format(DateTime.now());
+
+                      await DatabaseHelper.instance.salvarOrcamento(
+                        numero: numeroFinal,
+                        cliente: widget.nomeCliente,
+                        data: data,
+                        total: totalFinal,
+                        desconto: valorDesconto,
+                        itens: listaItens,
+                        km: km,
+                        custoKm: custoKm,
+                        almoco: almoco,
+                        status: "PENDENTE",
+                      );
+                    }
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ResumoScreen(
+                          numeroOrcamento: numeroFinal,
+                          nomeCliente: widget.nomeCliente,
+                          itens: listaItens
+                              .map(
+                                (e) => {
+                                  "descricao": e["descricao"].toString(),
+                                  "valor": e["valor"].toString(),
+                                },
+                              )
+                              .toList(),
+                          totalItens: somaItens,
+                          deslocamento: deslocamento,
+                          almoco: almoco,
+                          desconto: valorDesconto,
+                          totalGeral: totalFinal,
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ],
           ),

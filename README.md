@@ -1,10 +1,10 @@
-# ⚡ App Orçamentos — Roberto Giné
+# ⚡ EletricOrçamentos Pro — Roberto Giné
 
 Aplicativo desenvolvido em **Flutter** para geração e gestão de **orçamentos profissionais para serviços elétricos**.
 
 O sistema permite criar, editar e gerenciar orçamentos completos, calcular deslocamento, aplicar descontos e gerar **PDF profissional personalizado para envio ao cliente**.
 
-O aplicativo também possui **histórico avançado com filtros, busca, controle de status, dashboard financeiro e visualização gráfica do faturamento**.
+Além disso, o aplicativo possui **controle financeiro, dashboard com gráfico, geração de lista de materiais e histórico completo de orçamentos**.
 
 ---
 
@@ -25,7 +25,22 @@ O aplicativo também possui **histórico avançado com filtros, busca, controle 
 
 ---
 
-## 🔹 Controle de Status do Orçamento
+# 📋 Lista de Materiais
+
+O aplicativo permite gerar **listas de materiais diretamente a partir do orçamento**.
+
+Funcionalidades:
+
+* ✅ Criação manual de lista de materiais
+* ✅ Associação com número do orçamento
+* ✅ Quantidade e unidade de medida
+* ✅ Histórico de listas salvas
+* ✅ Visualização posterior da lista
+* ✅ Geração de **PDF profissional da lista**
+
+---
+
+# 🔹 Controle de Status do Orçamento
 
 Cada orçamento possui status para controle comercial:
 
@@ -43,7 +58,7 @@ Funcionalidades:
 
 ---
 
-## 🔹 Histórico Inteligente
+# 🔎 Histórico Inteligente
 
 Tela de histórico com recursos profissionais:
 
@@ -64,7 +79,7 @@ Tela de histórico com recursos profissionais:
 
 ---
 
-## 🔹 Cálculos Inteligentes
+# 🧮 Cálculos Inteligentes
 
 * ✅ Cadastro dinâmico de itens de serviço
 
@@ -84,20 +99,16 @@ Tela de histórico com recursos profissionais:
 
 ---
 
-## 🔹 Persistência de Dados
+# 🏢 Configuração da Empresa
 
-Banco de dados local com **SQLite**.
+Cada empresa pode personalizar o aplicativo com suas próprias informações:
 
-Cada orçamento salva:
+* ✅ Nome da empresa
+* ✅ Logotipo personalizado
+* ✅ Telefone de contato
+* ✅ Email da empresa
 
-* Km de deslocamento
-* Custo por km
-* Despesas adicionais
-* Desconto aplicado
-* Total final
-* Status do orçamento
-
-Os **itens ficam vinculados ao orçamento**.
+Essas informações são utilizadas automaticamente nos **PDFs gerados pelo aplicativo**.
 
 ---
 
@@ -117,7 +128,7 @@ O faturamento considera **apenas orçamentos com status FECHADO**.
 
 # 📈 Gráfico Financeiro
 
-O dashboard também apresenta **visualização gráfica dos dados financeiros**.
+O dashboard apresenta **visualização gráfica dos dados financeiros**.
 
 O gráfico permite acompanhar rapidamente:
 
@@ -134,17 +145,29 @@ Essa funcionalidade melhora a **análise de desempenho comercial diretamente no 
 
 ---
 
-# 🔹 Geração de PDF Profissional
+# 📄 Geração de PDF Profissional
 
-O aplicativo gera **PDF profissional para envio ao cliente**:
+O aplicativo gera **PDF profissional para envio ao cliente**.
+
+## PDF de Orçamento
 
 * ✅ Logo personalizada da empresa
 * ✅ Marca d'água no documento
 * ✅ Layout profissional
 * ✅ Numeração automática do orçamento
 * ✅ Itens detalhados
-* ✅ Total do serviço
+* ✅ Cálculo completo do serviço
+* ✅ Total destacado
 * ✅ Compartilhamento direto
+
+## PDF de Lista de Materiais
+
+* ✅ Logo da empresa
+* ✅ Número do orçamento
+* ✅ Cliente
+* ✅ Tabela de materiais
+* ✅ Quantidade e unidade
+* ✅ Contato da empresa
 
 ---
 
@@ -160,6 +183,7 @@ O aplicativo gera **PDF profissional para envio ao cliente**:
 * `url_launcher`
 * `intl`
 * `fl_chart`
+* `shared_preferences`
 
 ---
 
@@ -205,14 +229,17 @@ lib/
  │    ├── historico_screen.dart
  │    ├── dashboard_screen.dart
  │    ├── configuracoes_screen.dart
+ │    ├── lista_material_screen.dart
+ │    ├── visualizar_lista_screen.dart
  │    └── splash_screen.dart
- │
- ├── widgets/
- │    └── grafico_financeiro.dart
  │
  ├── services/
  │    ├── pdf_service.dart
+ │    ├── pdf_lista_material_service.dart
  │    └── database_helper.dart
+ │
+ ├── widgets/
+ │    └── grafico_financeiro.dart
  │
  └── utils/
       └── formatters.dart
@@ -231,6 +258,7 @@ Planejamento de evolução do sistema:
 * [ ] Cadastro de clientes
 * [ ] Sistema multiempresa
 * [ ] Publicação na Play Store
+* [ ] Versão web administrativa
 
 ---
 

@@ -4,6 +4,7 @@ import 'package:orcamento_app/screens/historico_screen.dart';
 
 import 'configuracoes_screen.dart';
 import 'itens_screen.dart';
+import 'lista_material_screen.dart';
 
 class ClienteScreen extends StatefulWidget {
   const ClienteScreen({super.key});
@@ -15,101 +16,170 @@ class ClienteScreen extends StatefulWidget {
 class _ClienteScreenState extends State<ClienteScreen> {
   final nomeController = TextEditingController();
 
+  void abrirOrcamento() {
+    if (nomeController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Informe o nome do cliente"),
+        ),
+      );
+
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ItensScreen(nomeCliente: nomeController.text),
+      ),
+    );
+  }
+
+  Widget menuCard({
+    required String titulo,
+    required String subtitulo,
+    required IconData icone,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(20),
+        leading: Icon(
+          icone,
+          size: 40,
+          color: Colors.blue,
+        ),
+        title: Text(
+          titulo,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(subtitulo),
+        onTap: onTap,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("EletricOrçamentos Pro"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.dashboard),
-            tooltip: "Dashboard",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const DashboardScreen(),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: "Configurações",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ConfiguracoesScreen(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text("EletricOrçamentos Pro"), actions: []),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: [
-            const SizedBox(height: 12),
-
-            OutlinedButton(
-              onPressed: () {
+            Center(
+              child: Column(
+                children: [
+                  Image.asset(
+                    "assets/logo_app.png",
+                    height: 90,
+                  ),
+                  //const SizedBox(height: 10),
+                  //const Text(
+                  // "EletricOrçamentos Pro",
+                  //style: TextStyle(
+                  // fontSize: 22,
+                  // fontWeight: FontWeight.bold,
+                  //),
+                  //),
+                  const SizedBox(height: 25),
+                ],
+              ),
+            ),
+            menuCard(
+              titulo: "Novo Orçamento",
+              subtitulo: "Criar orçamento para cliente",
+              icone: Icons.description,
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("Novo Orçamento"),
+                      content: TextField(
+                        controller: nomeController,
+                        decoration: const InputDecoration(
+                          labelText: "Nome do Cliente",
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          child: const Text("Cancelar"),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        ElevatedButton(
+                          child: const Text("Continuar"),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            abrirOrcamento();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+            menuCard(
+              titulo: "Lista de Materiais",
+              subtitulo: "Criar ou consultar listas",
+              icone: Icons.build,
+              onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const HistoricoScreen(),
+                    builder: (_) => const ListaMaterialScreen(),
                   ),
                 );
               },
-              child: const Text("Ver Histórico"),
             ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              "Novo Orçamento",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            menuCard(
+              titulo: "Histórico",
+              subtitulo: "Orçamentos realizados",
+              icone: Icons.history,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const HistoricoScreen(),
+                  ),
+                );
+              },
             ),
-
-            const SizedBox(height: 8),
-
-            Text(
-              "Informe o nome do cliente para iniciar",
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            menuCard(
+              titulo: "Dashboard Financeiro",
+              subtitulo: "Faturamento e indicadores",
+              icone: Icons.bar_chart,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const DashboardScreen(),
+                  ),
+                );
+              },
             ),
-
-            const SizedBox(height: 30),
-
-            TextField(
-              controller: nomeController,
-              decoration: InputDecoration(
-                labelText: "Nome do Cliente",
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          ItensScreen(nomeCliente: nomeController.text),
-                    ),
-                  );
-                },
-                child: const Text("Continuar", style: TextStyle(fontSize: 16)),
-              ),
+            menuCard(
+              titulo: "Configuração da Empresa",
+              subtitulo: "Logotipo e informações",
+              icone: Icons.business,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ConfiguracoesScreen(),
+                  ),
+                );
+              },
             ),
           ],
         ),

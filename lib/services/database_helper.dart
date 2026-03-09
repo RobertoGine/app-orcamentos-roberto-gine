@@ -63,6 +63,25 @@ class DatabaseHelper {
         logo_path TEXT
       )
     ''');
+    await db.execute('''
+    CREATE TABLE listas_material (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      cliente TEXT,
+      numero_orcamento TEXT,
+      data TEXT,
+      observacao TEXT
+    )
+    ''');
+
+    await db.execute('''
+    CREATE TABLE itens_material (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      lista_id INTEGER,
+      descricao TEXT,
+      quantidade REAL,
+      unidade TEXT
+    )
+    ''');
   }
 
   // ===============================
@@ -104,6 +123,46 @@ class DatabaseHelper {
     }
 
     return orcamentoId;
+  }
+
+  Future<int> criarListaMaterial(
+      String cliente, String? numeroOrcamento) async {
+    final db = await database;
+
+    return await db.insert(
+      'listas_material',
+      {
+        'cliente': cliente,
+        'numero_orcamento': numeroOrcamento,
+        'data': DateTime.now().toIso8601String(),
+        'observacao': '',
+      },
+    );
+  }
+
+  Future<void> inserirItemMaterial(Map<String, dynamic> item) async {
+    final db = await database;
+
+    await db.insert('itens_material', item);
+  }
+
+  Future<List<Map<String, dynamic>>> buscarListasMaterial() async {
+    final db = await database;
+
+    return await db.query(
+      'listas_material',
+      orderBy: 'data DESC',
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> buscarItensLista(int listaId) async {
+    final db = await database;
+
+    return await db.query(
+      'itens_material',
+      where: 'lista_id = ?',
+      whereArgs: [listaId],
+    );
   }
 
   Future<void> atualizarOrcamento({
