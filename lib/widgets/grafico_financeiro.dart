@@ -11,35 +11,110 @@ class GraficoFinanceiro extends StatelessWidget {
     required this.descontos,
   });
 
+  String formatarValor(double valor) {
+    if (valor >= 1000) {
+      return "R\$ ${(valor / 1000).toStringAsFixed(1)}K";
+    }
+    return "R\$ ${valor.toInt()}";
+  }
+
   @override
   Widget build(BuildContext context) {
+    final maiorValor = faturamento > descontos ? faturamento : descontos;
+
+    final double maxY = maiorValor == 0 ? 100.0 : (maiorValor * 1.3);
+
     return SizedBox(
-      height: 250,
+      height: 260,
       child: BarChart(
         BarChartData(
+          maxY: maxY,
           borderData: FlBorderData(show: false),
-          barGroups: [
-            BarChartGroupData(
-              x: 0,
-              barRods: [BarChartRodData(toY: faturamento, width: 30)],
-            ),
-            BarChartGroupData(
-              x: 1,
-              barRods: [BarChartRodData(toY: descontos, width: 30)],
-            ),
-          ],
+          gridData: FlGridData(
+            show: true,
+            horizontalInterval: maxY / 5,
+          ),
           titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
+            /// EIXO ESQUERDO
+            leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
+                reservedSize: 50,
                 getTitlesWidget: (value, meta) {
-                  if (value == 0) return const Text("Faturamento");
-                  if (value == 1) return const Text("Descontos");
-                  return const Text("");
+                  if (value == 0) {
+                    return const Text("0");
+                  }
+
+                  return Text(
+                    formatarValor(value),
+                    style: const TextStyle(fontSize: 10),
+                  );
                 },
               ),
             ),
+
+            /// REMOVE EIXO DIREITO
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+
+            /// TITULOS EMBAIXO
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 40,
+                getTitlesWidget: (value, meta) {
+                  switch (value.toInt()) {
+                    case 0:
+                      return const Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: Text("Faturamento"),
+                      );
+
+                    case 1:
+                      return const Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: Text("Descontos"),
+                      );
+
+                    default:
+                      return const Text("");
+                  }
+                },
+              ),
+            ),
+
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
           ),
+          barGroups: [
+            /// FATURAMENTO
+            BarChartGroupData(
+              x: 0,
+              barRods: [
+                BarChartRodData(
+                  toY: faturamento,
+                  width: 36,
+                  borderRadius: BorderRadius.circular(6),
+                  color: const Color(0xFF0D47A1),
+                ),
+              ],
+            ),
+
+            /// DESCONTOS
+            BarChartGroupData(
+              x: 1,
+              barRods: [
+                BarChartRodData(
+                  toY: descontos,
+                  width: 36,
+                  borderRadius: BorderRadius.circular(6),
+                  color: Colors.orange,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

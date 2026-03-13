@@ -24,6 +24,22 @@ class DatabaseHelper {
     return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
+  Future<void> excluirListaMaterial(int id) async {
+    final db = await database;
+
+    await db.delete(
+      'listas_material',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    await db.delete(
+      'itens_material',
+      where: 'lista_id = ?',
+      whereArgs: [id],
+    );
+  }
+
   // ===============================
   // CRIAR BANCO
   // ===============================
@@ -126,7 +142,10 @@ class DatabaseHelper {
   }
 
   Future<int> criarListaMaterial(
-      String cliente, String? numeroOrcamento) async {
+    String cliente,
+    String? numeroOrcamento,
+    String observacao,
+  ) async {
     final db = await database;
 
     return await db.insert(
@@ -134,8 +153,8 @@ class DatabaseHelper {
       {
         'cliente': cliente,
         'numero_orcamento': numeroOrcamento,
-        'data': DateTime.now().toIso8601String(),
-        'observacao': '',
+        'observacao': observacao,
+        'data': DateTime.now().toString(),
       },
     );
   }
@@ -237,6 +256,19 @@ class DatabaseHelper {
       where: 'orcamento_id = ?',
       whereArgs: [orcamentoId],
     );
+  }
+
+  Future<Map<String, dynamic>> buscarListaPorId(int id) async {
+    final db = await database;
+
+    final result = await db.query(
+      'listas_material',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+
+    return result.first;
   }
 
   // ===============================

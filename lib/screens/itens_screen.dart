@@ -337,13 +337,22 @@ class _ItensScreenState extends State<ItensScreen> {
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  onPressed: () {
+                  onPressed: () async {
+                    String numero;
+
+                    if (widget.numeroOrcamento != null) {
+                      numero = widget.numeroOrcamento!;
+                    } else {
+                      numero =
+                          await DatabaseHelper.instance.gerarNumeroOrcamento();
+                    }
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => ListaMaterialScreen(
                           cliente: widget.nomeCliente,
-                          numeroOrcamento: widget.numeroOrcamento,
+                          numeroOrcamento: numero,
                         ),
                       ),
                     );

@@ -83,6 +83,7 @@ class _ListaMaterialScreenState extends State<ListaMaterialScreen> {
     final listaId = await DatabaseHelper.instance.criarListaMaterial(
       cliente,
       widget.numeroOrcamento,
+      observacaoController.text,
     );
 
     for (var item in itens) {
@@ -126,35 +127,31 @@ class _ListaMaterialScreenState extends State<ListaMaterialScreen> {
           ),
         ],
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              /// CLIENTE
               const Text(
                 "Cliente",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
+
               TextField(
                 controller: clienteController,
                 decoration: const InputDecoration(
                   hintText: "Nome do cliente",
                 ),
               ),
+
               const SizedBox(height: 20),
-              const Text(
-                "Observação",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              TextField(
-                controller: observacaoController,
-                decoration: const InputDecoration(
-                  hintText: "Observações da lista",
-                ),
-              ),
-              const SizedBox(height: 20),
+
               const Divider(),
+
+              /// ADICIONAR MATERIAL
               const Text(
                 "Adicionar Material",
                 style: TextStyle(
@@ -162,14 +159,18 @@ class _ListaMaterialScreenState extends State<ListaMaterialScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
               const SizedBox(height: 10),
+
               TextField(
                 controller: descricaoController,
                 decoration: const InputDecoration(
                   labelText: "Descrição do Material",
                 ),
               ),
+
               const SizedBox(height: 10),
+
               TextField(
                 controller: quantidadeController,
                 keyboardType: TextInputType.number,
@@ -177,7 +178,9 @@ class _ListaMaterialScreenState extends State<ListaMaterialScreen> {
                   labelText: "Quantidade",
                 ),
               ),
+
               const SizedBox(height: 10),
+
               DropdownButton<String>(
                 value: unidade,
                 isExpanded: true,
@@ -205,13 +208,19 @@ class _ListaMaterialScreenState extends State<ListaMaterialScreen> {
                   });
                 },
               ),
+
               const SizedBox(height: 10),
+
               ElevatedButton(
                 onPressed: adicionarMaterial,
                 child: const Text("Adicionar Material"),
               ),
+
               const SizedBox(height: 20),
+
               const Divider(),
+
+              /// LISTA DE MATERIAIS
               const Text(
                 "Materiais adicionados",
                 style: TextStyle(
@@ -219,7 +228,9 @@ class _ListaMaterialScreenState extends State<ListaMaterialScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
               const SizedBox(height: 10),
+
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -250,48 +261,82 @@ class _ListaMaterialScreenState extends State<ListaMaterialScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: salvarLista,
-                      child: const Text("Salvar Lista"),
-                    ),
-                  ),
-                  if (widget.numeroOrcamento != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Text(
-                        "Orçamento: ${widget.numeroOrcamento}",
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (itens.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("Adicione materiais antes")),
-                          );
-                          return;
-                        }
 
-                        PdfListaMaterialService.gerarPdf(
-                          numeroOrcamento: widget.numeroOrcamento ?? "",
-                          cliente: clienteController.text,
-                          itens: itens,
-                        );
-                      },
-                      child: const Text("Gerar PDF"),
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 20),
+
+              const Divider(),
+
+              /// OBSERVAÇÃO
+              const Text(
+                "Observação",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              TextField(
+                controller: observacaoController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  hintText: "Ex: comprar disjuntor da marca Steck",
+                ),
+              ),
+
+              const SizedBox(height: 120),
+            ],
+          ),
+        ),
+      ),
+
+      /// BOTÕES FIXOS
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 10,
+              offset: const Offset(0, -3),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: salvarLista,
+                  child: const Text("Salvar Lista"),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (itens.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Adicione materiais antes"),
+                        ),
+                      );
+
+                      return;
+                    }
+
+                    PdfListaMaterialService.gerarPdf(
+                      numeroOrcamento: widget.numeroOrcamento ?? "",
+                      cliente: clienteController.text,
+                      itens: itens,
+                      observacao: observacaoController.text,
+                    );
+                  },
+                  child: const Text("Gerar PDF"),
+                ),
               ),
             ],
           ),
